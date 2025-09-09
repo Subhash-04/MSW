@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#3498db"/>
+  <text x="100" y="100" font-family="Arial" font-size="24" fill="white" text-anchor="middle" dominant-baseline="middle">Metashot Bat</text>
+  <path d="M70,140 L130,140 L130,70 L100,50 L70,70 Z" fill="#2c3e50" stroke="white" stroke-width="2"/>
+  <rect x="95" y="140" width="10" height="30" fill="#7f8c8d"/>
+</svg>
