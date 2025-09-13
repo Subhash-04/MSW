@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#e67e22"/>
+  <text x="100" y="100" font-family="Arial" font-size="24" fill="white" text-anchor="middle" dominant-baseline="middle">Prize 6</text>
+  <circle cx="100" cy="100" r="40" fill="#1abc9c" stroke="white" stroke-width="2"/>
+  <polygon points="100,60 115,85 140,90 120,110 125,135 100,125 75,135 80,110 60,90 85,85" fill="#34495e" stroke="white" stroke-width="2"/>
+</svg>
