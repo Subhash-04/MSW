@@ -146,8 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Function to show the prize
     function showPrize(prize) {
-        // Set up the video but don't show it yet
-        prizeVideo.src = prize.videoSrc;
+        // Always use video 1 regardless of the prize selected
+        prizeVideo.src = "assets/gift-1.mp4";
         prizeVideo.load(); // Force load the video
         
         // Add a fade-out effect to the wheel
@@ -206,30 +206,23 @@ document.addEventListener('DOMContentLoaded', () => {
         wheelImage.classList.remove('wheel-zoom');
         wheelImage.classList.remove('wheel-fade-out');
         
-        // Set prize details
-        prizeText.textContent = prize.name;
-        prizeImage.src = prize.imageSrc;
+        // Always use prize 1 (Metashot Bat) for the reveal
+        const prize1 = prizes[0];
+        prizeText.textContent = prize1.name;
+        prizeImage.src = prize1.imageSrc;
         
         // Show the prize reveal
         prizeReveal.classList.add('active');
         
-        // Check if this is the "Try Again" prize
+        // Always use the regular heading (not "Spin Again")
         const headingElement = document.querySelector('.prize-content h2');
-        if (prize.isTryAgain) {
-            // Change the congratulations text
-            headingElement.textContent = 'Spin Again!';
-            headingElement.classList.add('try-again');
-            // Change the claim button text
-            claimButton.textContent = 'SPIN AGAIN';
-            // Don't trigger confetti for try again
-        } else {
-            // Reset to default text for regular prizes
-            headingElement.textContent = 'CONGRATULATIONS!';
-            headingElement.classList.remove('try-again');
-            claimButton.textContent = 'CLAIM NOW';
-            // Trigger confetti effect for regular prizes
-            triggerConfetti();
-        }
+        headingElement.textContent = 'CONGRATULATIONS!';
+        
+        // Set claim button text to CLAIM NOW
+        claimButton.textContent = 'CLAIM NOW';
+        
+        // Always trigger confetti effect
+        triggerConfetti();
     }
 
     // Function to trigger confetti effect
