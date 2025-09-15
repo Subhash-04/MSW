@@ -37,16 +37,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Prize configuration with equal probabilities
+    // Prize configuration with specified probabilities
     const prizes = [
-        { name: "Metashot Bat", probability: 12.5, videoSrc: "assets/gift-1.mp4", imageSrc: "assets/gift-1.jpg" },
-        { name: "Prize 2", probability: 12.5, videoSrc: "assets/gift-2.mp4", imageSrc: "assets/gift-2.jpg" },
-        { name: "Prize 3", probability: 12.5, videoSrc: "assets/gift-3.mp4", imageSrc: "assets/gift-3.jpg" },
-        { name: "Prize 4", probability: 12.5, videoSrc: "assets/gift-4.mp4", imageSrc: "assets/gift-4.jpg" },
-        { name: "Prize 5", probability: 12.5, videoSrc: "assets/gift-5.mp4", imageSrc: "assets/gift-5.jpg" },
-        { name: "Prize 6", probability: 12.5, videoSrc: "assets/gift-6.mp4", imageSrc: "assets/gift-6.jpg" },
-        { name: "Prize 7", probability: 12.5, videoSrc: "assets/gift-7.mp4", imageSrc: "assets/gift-7.jpg" },
-        { name: "Chance to Spin Again", probability: 12.5, videoSrc: "assets/gift-8.mp4", imageSrc: "assets/gift-8.jpg", isTryAgain: true }
+        { name: "MetaShot", probability: 40, videoSrc: "assets/gift-1.mp4", imageSrc: "assets/gift-1.jpg" },
+        { name: "Resume Make", probability: 5, videoSrc: "assets/gift-2.mp4", imageSrc: "assets/gift-2.jpg" },
+        { name: "Techpath Explorer", probability: 5, videoSrc: "assets/gift-3.mp4", imageSrc: "assets/gift-3.jpg" },
+        { name: "Super Bounce 20% Discount", probability: 10, videoSrc: "assets/gift-4.mp4", imageSrc: "assets/gift-4.jpg" },
+        { name: "FangTech", probability: 30, videoSrc: "assets/gift-5.mp4", imageSrc: "assets/gift-5.jpg" },
+        { name: "Crazy Game", probability: 5, videoSrc: "assets/gift-6.mp4", imageSrc: "assets/gift-6.jpg" },
+        { name: "Music Concert", probability: 2, videoSrc: "assets/gift-7.mp4", imageSrc: "assets/gift-7.jpg" },
+        { name: "Spin Again", probability: 3, videoSrc: "assets/gift-8.mp4", imageSrc: "assets/gift-8.jpg", isTryAgain: true }
     ];
 
     // Generate a queue of prizes based on their probabilities
@@ -57,35 +57,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const queueSize = 100; // Size of the queue to pre-generate
         const queue = [];
         
-        // First, ensure all 8 videos play once in a random order
-        const initialSet = [...Array(prizes.length).keys()]; // [0,1,2,3,4,5,6,7]
+        // Create a weighted distribution based on probabilities
+        const weightedIndices = [];
         
-        // Shuffle the initial set using Fisher-Yates algorithm
-        for (let i = initialSet.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [initialSet[i], initialSet[j]] = [initialSet[j], initialSet[i]];
-        }
-        
-        // Add the shuffled set to the queue
-        queue.push(...initialSet);
-        
-        // Fill the rest of the queue with random selections
-        while (queue.length < queueSize) {
-            // Create another complete set of all prizes in random order
-            const nextSet = [...Array(prizes.length).keys()];
-            
-            // Shuffle this set
-            for (let i = nextSet.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [nextSet[i], nextSet[j]] = [nextSet[j], nextSet[i]];
+        // Add indices to weightedIndices based on their probability
+        prizes.forEach((prize, index) => {
+            // Add the index to the array multiple times based on its probability
+            for (let i = 0; i < prize.probability; i++) {
+                weightedIndices.push(index);
             }
-            
-            // Add this set to the queue
-            queue.push(...nextSet);
+        });
+        
+        // Fill the queue with random selections from the weighted distribution
+        for (let i = 0; i < queueSize; i++) {
+            const randomIndex = Math.floor(Math.random() * weightedIndices.length);
+            queue.push(weightedIndices[randomIndex]);
         }
         
-        // Trim to the desired queue size
-        return queue.slice(0, queueSize);
+        // Shuffle the queue using Fisher-Yates algorithm for additional randomness
+        for (let i = queue.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [queue[i], queue[j]] = [queue[j], queue[i]];
+        }
+        
+        return queue;
     }
     
     // Initialize the prize queue
@@ -146,8 +141,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Function to show the prize
     function showPrize(prize) {
-        // Always use video 1 regardless of the prize selected
-        prizeVideo.src = "assets/gift-1.mp4";
+        // Set up the video but don't show it yet
+        prizeVideo.src = prize.videoSrc;
         prizeVideo.load(); // Force load the video
         
         // Add a fade-out effect to the wheel
@@ -206,23 +201,30 @@ document.addEventListener('DOMContentLoaded', () => {
         wheelImage.classList.remove('wheel-zoom');
         wheelImage.classList.remove('wheel-fade-out');
         
-        // Always use prize 1 (Metashot Bat) for the reveal
-        const prize1 = prizes[0];
-        prizeText.textContent = prize1.name;
-        prizeImage.src = prize1.imageSrc;
+        // Set prize details
+        prizeText.textContent = prize.name;
+        prizeImage.src = prize.imageSrc;
         
         // Show the prize reveal
         prizeReveal.classList.add('active');
         
-        // Always use the regular heading (not "Spin Again")
+        // Check if this is the "Try Again" prize
         const headingElement = document.querySelector('.prize-content h2');
-        headingElement.textContent = 'CONGRATULATIONS!';
-        
-        // Set claim button text to CLAIM NOW
-        claimButton.textContent = 'CLAIM NOW';
-        
-        // Always trigger confetti effect
-        triggerConfetti();
+        if (prize.isTryAgain) {
+            // Change the congratulations text
+            headingElement.textContent = 'Spin Again!';
+            headingElement.classList.add('try-again');
+            // Change the claim button text
+            claimButton.textContent = 'SPIN AGAIN';
+            // Don't trigger confetti for try again
+        } else {
+            // Reset to default text for regular prizes
+            headingElement.textContent = 'CONGRATULATIONS!';
+            headingElement.classList.remove('try-again');
+            claimButton.textContent = 'CLAIM NOW';
+            // Trigger confetti effect for regular prizes
+            triggerConfetti();
+        }
     }
 
     // Function to trigger confetti effect
