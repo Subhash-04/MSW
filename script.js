@@ -37,76 +37,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Prize configuration with specified probabilities
+    // Prize configuration, now all equal chance!
     const prizes = [
-        { name: "MetaShot", probability: 40, videoSrc: "assets/gift-1.mp4", imageSrc: "assets/gift-1.jpg" },
-        { name: "Resume Make", probability: 5, videoSrc: "assets/gift-2.mp4", imageSrc: "assets/gift-2.jpg" },
-        { name: "Techpath Explorer", probability: 5, videoSrc: "assets/gift-3.mp4", imageSrc: "assets/gift-3.jpg" },
-        { name: "Super Bounce 20% Discount", probability: 10, videoSrc: "assets/gift-4.mp4", imageSrc: "assets/gift-4.jpg" },
-        { name: "FangTech", probability: 30, videoSrc: "assets/gift-5.mp4", imageSrc: "assets/gift-5.jpg" },
-        { name: "Crazy Game", probability: 5, videoSrc: "assets/gift-6.mp4", imageSrc: "assets/gift-6.jpg" },
-        { name: "Music Concert", probability: 2, videoSrc: "assets/gift-7.mp4", imageSrc: "assets/gift-7.jpg" },
-        { name: "Spin Again", probability: 3, videoSrc: "assets/gift-8.mp4", imageSrc: "assets/gift-8.jpg", isTryAgain: true }
+        { name: "MetaShot", videoSrc: "assets/gift-1.mp4", imageSrc: "assets/gift-1.jpg" },
+        { name: "Resume Make", videoSrc: "assets/gift-2.mp4", imageSrc: "assets/gift-2.jpg" },
+        { name: "Techpath Explorer", videoSrc: "assets/gift-3.mp4", imageSrc: "assets/gift-3.jpg" },
+        { name: "Super Bounce 20% Discount", videoSrc: "assets/gift-4.mp4", imageSrc: "assets/gift-4.jpg" },
+        { name: "FangTech", videoSrc: "assets/gift-5.mp4", imageSrc: "assets/gift-5.jpg" },
+        { name: "Crazy Game", videoSrc: "assets/gift-6.mp4", imageSrc: "assets/gift-6.jpg" },
+        { name: "Music Concert", videoSrc: "assets/gift-7.mp4", imageSrc: "assets/gift-7.jpg" },
+        { name: "Spin Again", videoSrc: "assets/gift-8.mp4", imageSrc: "assets/gift-8.jpg", isTryAgain: true }
     ];
 
-    // Generate a queue of prizes based on their probabilities
-    let prizeQueue = [];
-    
-    // Function to generate the prize queue
-    function generatePrizeQueue() {
-        const queueSize = 100; // Size of the queue to pre-generate
-        const queue = [];
-        
-        // Create a weighted distribution based on probabilities
-        const weightedIndices = [];
-        
-        // Add indices to weightedIndices based on their probability
-        prizes.forEach((prize, index) => {
-            // Add the index to the array multiple times based on its probability
-            for (let i = 0; i < prize.probability; i++) {
-                weightedIndices.push(index);
-            }
-        });
-        
-        // Fill the queue with random selections from the weighted distribution
-        for (let i = 0; i < queueSize; i++) {
-            const randomIndex = Math.floor(Math.random() * weightedIndices.length);
-            queue.push(weightedIndices[randomIndex]);
-        }
-        
-        // Shuffle the queue using Fisher-Yates algorithm for additional randomness
-        for (let i = queue.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [queue[i], queue[j]] = [queue[j], queue[i]];
-        }
-        
-        return queue;
-    }
-    
-    // Initialize the prize queue
-    prizeQueue = generatePrizeQueue();
-    
-    // Function to select a prize based on the queue and avoid repetition
+    // Function to select a prize at random, avoid immediate repeats
     function selectPrize() {
-        if (prizeQueue.length === 0) {
-            // Regenerate the queue if it's empty
-            prizeQueue = generatePrizeQueue();
-        }
-        
-        // Get the next prize index from the queue
-        let selectedIndex = prizeQueue.shift();
-        
-        // Try to avoid repetition by selecting a different prize if possible
-        if (selectedIndex === lastPrizeIndex && prizeQueue.length > 0) {
-            // Put the current prize back in the queue
-            prizeQueue.push(selectedIndex);
-            // Get the next prize instead
-            selectedIndex = prizeQueue.shift();
-        }
-        
-        // Update the last selected prize index
+        let selectedIndex;
+        do {
+            selectedIndex = Math.floor(Math.random() * prizes.length);
+        } while (selectedIndex === lastPrizeIndex && prizes.length > 1);
         lastPrizeIndex = selectedIndex;
-        
         return prizes[selectedIndex];
     }
 
@@ -124,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add wheel zoom effect
         wheelImage.classList.add('wheel-zoom');
         
-        // Select a prize from the queue
+        // Select a prize
         const prize = selectPrize();
         
         // Wait for fade-out to complete before hiding elements
@@ -154,34 +103,33 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         
         // Wait for wheel fade-out before showing video
-         setTimeout(() => {
-             // Hide wheel and show video container with transition
-             wheelImage.style.visibility = 'hidden';
-             videoContainer.classList.remove('hidden');
-             videoContainer.classList.add('visible');
-             
-             // Try to play the video
-             const playPromise = prizeVideo.play();
-             
-             // Handle play promise
-             if (playPromise !== undefined) {
-                 playPromise.then(() => {
-                     // Video playback started successfully
-                     // Hide loading overlay if it was shown
-                     loadingOverlay.classList.remove('active');
-                     loadingOverlay.classList.add('hidden');
-                 }).catch(error => {
-                     // Auto-play was prevented or other error
-                     console.log('Video play error:', error);
-                     // Hide loading overlay
-                     loadingOverlay.classList.remove('active');
-                     loadingOverlay.classList.add('hidden');
-                     
-                     // Skip to prize reveal if video can't play
-                     skipToReveal(prize);
-                 });
-             }
-         }, 800); // Wait for wheel fade-out animation
+        setTimeout(() => {
+            // Hide wheel and show video container with transition
+            wheelImage.style.visibility = 'hidden';
+            videoContainer.classList.remove('hidden');
+            videoContainer.classList.add('visible');
+            
+            // Try to play the video
+            const playPromise = prizeVideo.play();
+            
+            // Handle play promise
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    // Video playback started successfully
+                    // Hide loading overlay if it was shown
+                    loadingOverlay.classList.remove('active');
+                    loadingOverlay.classList.add('hidden');
+                }).catch(error => {
+                    // Auto-play was prevented or other error
+                    console.log('Video play error:', error);
+                    // Hide loading overlay
+                    loadingOverlay.classList.remove('active');
+                    loadingOverlay.classList.add('hidden');
+                    // Skip to prize reveal if video can't play
+                    skipToReveal(prize);
+                });
+            }
+        }, 800); // Wait for wheel fade-out animation
         
         // Handle video loading error
         prizeVideo.onerror = () => {
@@ -214,15 +162,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // Change the congratulations text
             headingElement.textContent = 'Spin Again!';
             headingElement.classList.add('try-again');
-            // Change the claim button text
             claimButton.textContent = 'SPIN AGAIN';
-            // Don't trigger confetti for try again
         } else {
             // Reset to default text for regular prizes
             headingElement.textContent = 'CONGRATULATIONS!';
             headingElement.classList.remove('try-again');
             claimButton.textContent = 'CLAIM NOW';
-            // Trigger confetti effect for regular prizes
             triggerConfetti();
         }
     }
@@ -235,7 +180,4 @@ document.addEventListener('DOMContentLoaded', () => {
             origin: { y: 0.6 }
         });
     }
-
-    // We've already added the claim button event listener at the top of the file
-     // No additional event listeners needed here
 });
